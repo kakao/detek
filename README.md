@@ -20,7 +20,7 @@ You can use detek with the below docker command.
 ```sh
 # on bash
 # will use kubeconfig in "~/.kube/config"
-docker run --rm -v ~/.kube:/.kube ghcr.io/kakao/detek:latest run -o html > report.html
+docker run --rm -v ~/.kube:/.kube ghcr.io/kakao/detek:latest run -f html > report.html
 ```
 
 ### with Source
@@ -31,7 +31,7 @@ with **`go >= 1.19`**
 > go install github.com/kakao/detek@latest
 
 # will use kubeconfig in "$HOME/.kube/config"
-> detek run -o html > report.html
+> detek run -f html > report.html
 ```
 
 ## How to customize this?
