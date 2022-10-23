@@ -13,6 +13,26 @@ Show a current state of your cluster likes below! :-D
 
 ## How to use this?
 
+### with kubectl
+
+```sh
+kubectl create ns detek
+# warn: predefined "view" clusterrole does not allow access to "core/v1/node" object
+kubectl create clusterrolebinding detek --clusterrole view --serviceaccount detek:default
+kubectl -n detek create job task --image ghcr.io/kakao/detek:latest
+
+# wait until the task is completed
+kubectl -n detek get pod -w
+
+# get the report
+kubectl -n detek logs job/task > report.html
+# open report.html
+
+# delete everything
+kubectl delete clusterrolebinding detek
+kubectl delete ns detek
+```
+
 ### with Docker
 
 You can use detek with the below docker command.
