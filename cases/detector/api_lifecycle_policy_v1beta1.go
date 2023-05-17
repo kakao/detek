@@ -30,7 +30,8 @@ func (*ApiLifecyclePolicyV1Beta1) GetMeta() detek.DetectorInfo {
 		IfHappened: detek.Description{
 			Explanation: "The policy/v1beta1 PodSecurityPolicy is deprecated in v" + strconv.Itoa(deprecatedMajor) + "." + strconv.Itoa(deprecatedMinor) + "+, " +
 				"unavailable in v" + strconv.Itoa(removedMajor) + "." + strconv.Itoa(removedMinor) + "+",
-			Solution: "Use the policy/v1 not policy/v1beta1.",
+			Solution: "Migrate to Pod Security Admission or a 3rd party admission webhook. " +
+				"For more information, please refer the following guide. https://kubernetes.io/docs/reference/using-api/deprecation-guide/#psp-v125",
 		},
 	}
 }
