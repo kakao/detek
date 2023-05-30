@@ -61,6 +61,8 @@ func (c *K8sClientCollector) Do(ctx detek.DetekContext) error {
 		config, err = clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	}
 
+	config.WarningHandler = rest.NoWarnings{}
+
 	if err != nil {
 		return fmt.Errorf("fail to get kubernetes client:%w", err)
 	}
