@@ -1,11 +1,13 @@
 package detector
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/kakao/detek/cases/collector"
 	"github.com/kakao/detek/pkg/detek"
 	"k8s.io/api/policy/v1beta1"
+	"k8s.io/apimachinery/pkg/version"
 )
 
 var _ detek.Detector = &ApiLifecyclePolicyV1Beta1{}
@@ -28,31 +30,47 @@ func (*ApiLifecyclePolicyV1Beta1) GetMeta() detek.DetectorInfo {
 		},
 		Level: detek.Warn,
 		IfHappened: detek.Description{
-			Explanation: "The policy/v1beta1 PodSecurityPolicy is deprecated in v" + strconv.Itoa(deprecatedMajor) + "." + strconv.Itoa(deprecatedMinor) + "+, " +
-				"unavailable in v" + strconv.Itoa(removedMajor) + "." + strconv.Itoa(removedMinor) + "+",
+			Explanation: fmt.Sprintf("The PodSecurityPolicy in policy/v1beta1 is deprecated in %s, and unavailable in %s",
+				fmt.Sprintf("v%d.%d", deprecatedMajor, deprecatedMinor),
+				fmt.Sprintf("v%d.%d", removedMajor, removedMinor),
+			),
 			Solution: "Migrate to Pod Security Admission or a 3rd party admission webhook. " +
-				"For more information, please refer the following guide. https://kubernetes.io/docs/reference/using-api/deprecation-guide/#psp-v125",
+				"For more information, please refer the following guide. " +
+				"https://kubernetes.io/docs/reference/using-api/deprecation-guide/#psp-v125",
 		},
 	}
 }
 
 func (*ApiLifecyclePolicyV1Beta1) Do(ctx detek.DetekContext) (*detek.ReportSpec, error) {
+	var err error
+
 	podSecurityPolicyList, err := detek.Typing[v1beta1.PodSecurityPolicyList](ctx.Get(collector.KeyK8sPolicyV1Beta1PodSecurityPolicyList, nil))
 	if err != nil {
 		return nil, err
 	}
 
 	type Problem struct {
-		Resource  string
-		Name      string
+		Resource string
+		Name     string
 	}
 	problems := []Problem{}
 
-	for _, psp := range podSecurityPolicyList.Items {
-		problems = append(problems, Problem{
-			Resource:  "policy/v1beta1 PodSecurityPolicy",
-			Name:      psp.Name,
-		})
+	version, err := detek.Typing[version.Info](ctx.Get(collector.KeyK8sVersion, nil))
+	if err != nil {
+		return nil, err
+	}
+	currentVersion, err := strconv.ParseFloat(version.Major+"."+version.Minor, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	if currentVersion >= K8S_VERSION_1_21 {
+		for _, psp := range podSecurityPolicyList.Items {
+			problems = append(problems, Problem{
+				Resource: "policy/v1beta1 PodSecurityPolicy",
+				Name:     psp.Name,
+			})
+		}
 	}
 
 	return &detek.ReportSpec{
