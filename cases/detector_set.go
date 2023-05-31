@@ -24,6 +24,7 @@ var (
 				&detector.PodWithoutReadinessProbe{},
 				&detector.ServiceNoAvailableTarget{},
 				&detector.ServicePartiallyAvailable{},
+				&detector.ApiLifecyclePolicyV1Beta1{},
 			}
 		},
 		// add more preset here

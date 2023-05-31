@@ -12,6 +12,7 @@ var CollectorSet map[string]CollectorSetInitiator = map[string]CollectorSetIniti
 		return []detek.Collector{
 			&collector.K8sClientCollector{KubeconfigPath: m[CONFIG_KUBECONFIG]},
 			&collector.K8sCoreV1Collector{},
+			&collector.K8sPolicyV1Beta1Collector{},
 		}
 	},
 	// add more preset here
